@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jev-2048-selenium"
+version = "1.0.0"
+description = "A Jev-guided expectimax player for 2048.org using Selenium"
+requires-python = ">=3.10"
+dependencies = [
+  "selenium>=4.35,<5",
+  "typesafe-sdk>=0.6,<1",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<9"]
+
+[project.scripts]
+jev-2048 = "jev2048.app:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
