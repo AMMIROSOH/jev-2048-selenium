@@ -113,7 +113,16 @@ class GameBrowser:
         return GameStatus(won="game-won" in classes, over="game-over" in classes)
 
     def read_score(self) -> int:
-        text = self.driver.find_element(By.CSS_SELECTOR, ".score-container").text
+        score = self.driver.execute_script(
+            "const raw = window.localStorage.getItem('gameState'); "
+            "if (!raw) return null; "
+            "try { return JSON.parse(raw).score ?? null; } catch { return null; }"
+        )
+        if score is not None:
+            return int(score)
+        # Selenium's .text is empty when the site's heading is hidden by the
+        # recording layout. textContent still exposes its final score.
+        text = self.driver.find_element(By.CSS_SELECTOR, ".score-container").get_attribute("textContent") or ""
         match = re.search(r"\d+", text)
         return int(match.group(0)) if match else 0
 
@@ -301,7 +310,7 @@ class GameBrowser:
                 backdrop-filter: blur(12px);
               }
               @media (max-width: 700px) {
-                #jev-recording-stage { padding: 24px 16px 18px; gap: 10px; }
+                #jev-recording-stage { padding: 90px 16px 18px; gap: 10px; }
                 #jev-recording-stage::before { inset: 10px; border-radius: 24px; }
                 #jev-hero, #jev-summary, #jev-dashboard, #jev-footer { width: min(508px, 94vw); }
                 #jev-live { font-size: 10px; gap: 7px; }
@@ -317,7 +326,8 @@ class GameBrowser:
                 #jev-dashboard { padding: 14px 15px; border-radius: 18px; grid-template-columns: .9fr 1.1fr; gap: 16px; }
                 .jev-kicker { font-size: 8px; }
                 #jev-choice-row { gap: 9px; margin: 5px 0 7px; }
-                #jev-arrow { width: 43px; height: 43px; border-radius: 12px; font-size: 31px; }
+                #jev-arrow { width: 43px; height: 43px; border-radius: 12px; }
+                #jev-arrow svg { width: 28px; height: 28px; }
                 #jev-choice { font-size: 23px; }
                 #jev-status { margin-top: 3px; font-size: 8px; letter-spacing: .03em; }
                 #jev-metrics { gap: 5px; margin-top: 8px; }
@@ -346,8 +356,8 @@ class GameBrowser:
             stage.id = 'jev-recording-stage';
             stage.innerHTML = `
               <section id="jev-hero">
-                <div id="jev-live-row"><div id="jev-live"><i id="jev-live-dot"></i> LIVE DECISION ENGINE</div><div id="jev-brand-mini">JEV × 2048</div></div>
-                <h1 id="jev-title">AI PLAYS <span>2048</span></h1>
+                <div id="jev-live-row"><div id="jev-live"><i id="jev-live-dot"></i> LIVE DECISION ENGINE</div><div id="jev-brand-mini">JEFF × 2048</div></div>
+                <h1 id="jev-title">JEFF PLAYS <span>2048</span></h1>
                 <div id="jev-subtitle">Expectimax search guided by calibrated Jev decisions</div>
               </section>
               <section id="jev-summary">
@@ -364,7 +374,7 @@ class GameBrowser:
             dashboard.innerHTML = `
               <div id="jev-decision">
                 <div class="jev-kicker">NEXT DECISION</div>
-                <div id="jev-choice-row"><div id="jev-arrow">—</div><div><div id="jev-choice">READY</div><div id="jev-status">WAITING FOR FIRST MOVE</div></div></div>
+                <div id="jev-choice-row"><div id="jev-arrow"></div><div><div id="jev-choice">READY</div><div id="jev-status">WAITING FOR FIRST MOVE</div></div></div>
                 <div id="jev-metrics">
                   <div class="jev-metric"><strong id="jev-depth">—</strong><span>DEPTH</span></div>
                   <div class="jev-metric"><strong id="jev-nodes">—</strong><span>NODES</span></div>
@@ -413,7 +423,9 @@ class GameBrowser:
 
             const arrow = document.getElementById('jev-arrow');
             if (arrow) {
-              arrow.textContent = arrows[s.direction] || '—';
+              const rotation = {up: 0, right: 90, down: 180, left: 270}[s.direction];
+              arrow.innerHTML = rotation == null ? '—' :
+                `<svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true" style="display:block;transform:rotate(${rotation}deg)"><path d="M24 40V8 M11 21L24 8l13 13" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
               arrow.classList.remove('jev-pop'); void arrow.offsetWidth; arrow.classList.add('jev-pop');
             }
             const probabilities = s.probabilities || {};
@@ -431,6 +443,15 @@ class GameBrowser:
             }
             """,
             stats,
+        )
+
+    def update_recording_board_stats(self, score: int, max_tile: int) -> None:
+        """Refresh the scoreboard after a move without resetting its decision panel."""
+        self.driver.execute_script(
+            "document.getElementById('jev-score').textContent = Number(arguments[0]).toLocaleString();"
+            "document.getElementById('jev-max').textContent = Number(arguments[1]).toLocaleString();",
+            score,
+            max_tile,
         )
 
     def recording_countdown(self, seconds: int) -> None:

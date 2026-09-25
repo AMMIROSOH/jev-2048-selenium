@@ -214,7 +214,11 @@ def run(args: argparse.Namespace) -> int:
                     "combined_probabilities": decision.combined_probabilities,
                 },
             )
-            game.send_move(decision.direction, board)
+            new_board = game.send_move(decision.direction, board)
+            if args.record:
+                game.update_recording_board_stats(
+                    game.read_score(), max(max(row) for row in new_board)
+                )
             game.pause(move_delay)
 
         final_board = game.read_board()

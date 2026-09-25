@@ -44,6 +44,10 @@ To test the recording layout without spending Jev API calls:
 - A six-move visual history.
 - A five-second recorded countdown and a three-second final hold.
 
+The portrait layout leaves clear space above the title for phone camera islands
+and below the footer for Shorts playback controls. The score is refreshed from
+the live game state after each move.
+
 ## Video quality
 
 The default output is:

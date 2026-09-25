@@ -2,6 +2,7 @@
 __pycache__/
 .pytest_cache/
 *.py[cod]
+*.egg-info/
 logs/
 recordings/
 *.ffmpeg.log
