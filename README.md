@@ -4,6 +4,8 @@ This Python application opens [2048.org](https://www.2048.org/) with Selenium an
 
 It also includes an integrated Selenium + FFmpeg portrait recorder. See [RECORDING.md](RECORDING.md), or run `python run.py --record` to create a high-quality 1080×1920 YouTube Short MP4 automatically.
 
+Star The Repo if you Enjoyed ⭐
+
 ## Why the hybrid design
 
 Jev 1.13 is a text/JSON decision model, not a vision or game-tree model. The application therefore:
