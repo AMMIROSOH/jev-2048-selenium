@@ -356,8 +356,8 @@ class GameBrowser:
             stage.id = 'jev-recording-stage';
             stage.innerHTML = `
               <section id="jev-hero">
-                <div id="jev-live-row"><div id="jev-live"><i id="jev-live-dot"></i> LIVE DECISION ENGINE</div><div id="jev-brand-mini">JEFF × 2048</div></div>
-                <h1 id="jev-title">JEFF PLAYS <span>2048</span></h1>
+                <div id="jev-live-row"><div id="jev-live"><i id="jev-live-dot"></i> LIVE DECISION ENGINE</div><div id="jev-brand-mini">JEV × 2048</div></div>
+                <h1 id="jev-title">JEV PLAYS <span>2048</span></h1>
                 <div id="jev-subtitle">Expectimax search guided by calibrated Jev decisions</div>
               </section>
               <section id="jev-summary">
